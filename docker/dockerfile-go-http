@@ -3,9 +3,8 @@ FROM golang
 
 # 호스트의 웹 사이트 디렉토리를 컨테이너 내부로 복사
 COPY ./http-go.go /root/main.go
-
 WORKDIR /root
-# RUN echo im $(cat /etc/hostname) > /var/www/html/index.html
+
 RUN go mod init test
 RUN go mod tidy
 RUN go build main.go
