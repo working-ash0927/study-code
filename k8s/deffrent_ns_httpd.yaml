@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Namespace
+metadata: 
+  name: test-ns
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: test-ns
+  name: http
+spec:
+  type: NodePort             # NodePort, LoadBalancer 변경 가능. Cluster IP는 안되네
+  sessionAffinity: ClientIP  # 파드에 처음 들어왔던 클라이언트 IP를 유지해서 세션 유지
+  selector:                  # 이 서비스는 app:front 인 pod에 대해 외부 진입점을 허용시킨다.
+    app: httpd
+  ports:
+    - name: http
+      nodePort: 30080   # 외부에서 진입시
+      port: 80          # 클러스터에서 서비스 IP를 호출 시
+      targetPort: 80    # 서비스가 Pod를 호출 시
+    - name: https
+      nodePort: 30081   # 외부에서 진입시
+      port: 443          # 클러스터에서 서비스 IP를 호출 시
+      targetPort: 443    # 서비스가 Pod를 호출 시
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: test-ns
+  name: apache-deploy
+  labels:
+    app: httpd
+    tier: front
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: httpd
+  template:
+    metadata:      
+      labels:
+        app: httpd
+        tire: front
+    spec:
+      containers:
+        - name: apache
+          image: httpd  # 서버의 호스트네임을 반환하기 위함
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 3
+            httpGet:
+              path: /
+              port: 80

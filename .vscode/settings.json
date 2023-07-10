@@ -1,0 +1,6 @@
+{
+    "yaml.schemas": {
+
+        "Kubernetes": "k8s*.yaml"
+    }
+}
