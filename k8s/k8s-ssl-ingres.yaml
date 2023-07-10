@@ -2,21 +2,24 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-nginx
+  name: ingress-ssl-nginx
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/ssl-redirect: "false" # 80 접근시 443 리다이렉트
+    nginx.ingress.kubernetes.io/ssl-redirect: "true" # 80 접근시 443 리다이렉트
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+      - test.ashworking.click
+    secretName: ingress-tls
   rules:
-    - host: localhost  # alb의 경로기반 라우팅 하는 기준같은거
+    - host: test.ashworking.click  # alb의 경로기반 라우팅 하는 기준같은거
       http:
         paths:
           - path: /
             pathType: Prefix  # / 시작하는 경로 전부 수용
             backend:          # 트래픽을 전달 할 대상 서비스
               service:
-                name: http-go
+                name: http
                 port:
-                  number: 80  # 삽질 디지게 했던건데, ingress-nginx로 80 요청이 왔을때 http-go로 트래픽을 넘기겠단 뜻
-
+                  number: 80

@@ -1,24 +1,24 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: http
+  name: http-go
 spec:
   type: NodePort             # Cluster IP, NodePort, LoadBalancer 변경 가능.    
   #sessionAffinity: ClientIP  # 파드에 처음 들어왔던 클라이언트 IP를 유지해서 세션 유지
   selector:                  # 이 서비스는 app:front 인 pod에 대해 외부 진입점을 허용시킨다.
     app: go
   ports:
-    - name: http
+    - name: http-go
       nodePort: 30080   # 외부에서 진입시
       port: 80          # 클러스터에서 서비스 IP를 호출 시
-      targetPort: 5000  # 서비스가 Pod를 호출 시
+      targetPort: 5000    # 서비스가 Pod를 호출 시
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: front-deploy
   labels:
-    app: test
+    app: go
     tier: front
 spec:
   replicas: 2

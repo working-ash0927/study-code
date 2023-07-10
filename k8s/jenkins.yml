@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins-svc
+spec:
+  # type: NodePort             # Cluster IP, NodePort, LoadBalancer 변경 가능.    
+  type: ClusterIP
+  # sessionAffinity: ClientIP  # 파드에 처음 들어왔던 클라이언트 IP를 유지해서 세션 유지
+  selector:                  # 이 서비스는 app:jenkins인 pod에 대해 트래픽을 전달
+    app: jenkins
+  ports:
+    - name: jenkins
+      nodePort: 30880   # 외부에서 진입시
+      port: 8080          # 클러스터에서 서비스 IP를 호출 시
+      targetPort: 8080    # 서비스가 Pod를 호출 시
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins-deploy
+  labels:
+    app: jenkins
+    tier: app
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: jenkins
+  template:
+    metadata:      
+      labels:
+        app: jenkins
+        tier: app
+    spec:
+      containers:
+        - name: jenkins
+          image: jenkins/jenkins:lts
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 300 # 상태체크 시작을 300초 딜레이 시킴 
+            tcpSocket: # 해당 포트가 열려있음 성공으로 판단
+              port: 8080
+            successThreshold: 1 # 기본,최소값은 1. 성공 간주를 위한 probe 카운트 값

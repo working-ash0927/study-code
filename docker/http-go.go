@@ -21,9 +21,8 @@ func main() {
 		if err != nil {
 			return
 		}
-		// a := strconv.Itoa(hostname)
 		w.Write([]byte(hostname))
 	})
 
-	http.ListenAndServe(":5000", nil)
+	http.ListenAndServe(":80", nil)
 }
