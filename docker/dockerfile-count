@@ -1,4 +1,4 @@
 # 베이스 이미지 설정
 FROM busybox:latest
-ADD count.sh /bin/count.sh
-ENTRYPOINT /bin/count.sh
+ADD count.sh /count.sh
+ENTRYPOINT sh /count.sh

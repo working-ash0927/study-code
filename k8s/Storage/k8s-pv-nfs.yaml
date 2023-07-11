@@ -1,0 +1,54 @@
+# PV도 클러스터 리소스의 일종.
+# 다만 PV는 pod와 다른 라이프사이클을 가지며, Pod가 종료되도 PV에 기록된 데이터는 보존될 수 있다.
+## 라이프싸이클 : 프로비저닝 -> 바인딩 -> 사용중 -> 반환(retain)
+# PV는 클라우드 공급자 별 스토리지 시스템 등 스토리지 구현을 위한 세부정보가 반드시 명시되야 한다.
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-nfs
+spec:
+  capacity:
+    storage: 1Gi # 스토리지 용량 1GB
+  volumeMode: Filesystem # 파일 시스템 형식
+  accessModes: # 읽기/쓰기 옵션
+  - ReadWriteMany  # 여러 노드가 마운트 가능, # ReadWriteOnce 하나의 노드만 마운트
+  storageClassName: ""  # 동적 프로비저닝. 사용 안할거면 공백 문자열 선언
+  persistentVolumeReclaimPolicy: Retain # Default : Delete, Recycle, PVC해제 후에도 PV는 남는다.
+  nfs:
+    path: /home/nfs
+    server: 70.0.0.214
+    readOnly: true
+  mountOptions:
+    - nfsvers=4.2  # nfs 옵션 명시 가능
+# PVC는 클러스터에 배포된 스토리지를 활용하기 위한 리소스이다.
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-nfs
+spec:
+  storageClassName: ""
+  accessModes: # AccessModes
+    - ReadWriteMany
+  volumeName: pv-nfs
+  resources:
+    requests:
+      storage: 1Gi # 1GB 요청
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pvc-httpd
+spec:
+  containers:
+    - name: pvc-httpd
+      image: httpd
+      volumeMounts:
+        - name: nfs
+          mountPath: /usr/local/apache2/htdocs
+  volumes:
+    - name: nfs
+      persistentVolumeClaim:
+        claimName: pvc-nfs
+

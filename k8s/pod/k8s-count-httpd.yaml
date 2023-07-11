@@ -5,19 +5,19 @@ metadata:
   name: count
 spec:
   volumes:
-    - name: html
+    - name: html  # mount할 볼륨 명
       emptyDir: {}
   containers:  
-    - name: html-generator
-      image: ash0927/count:1
+    - image: ash0927/count:latest
+      name: html-generator
       volumeMounts:
-        - mountPath: /var/htdocs
-          name: html
+        - name: html  # volumes에서 선언 한 볼륨 이름 
+          mountPath: /var/htdocs # Container 내에서 볼륨과 공유 할 경로 (count하며 갱신되는 html주소)
     - image: httpd
       name: web-server
       volumeMounts:
-      - name: html
-        mountPath: /usr/local/apache2/htdocs
+      - name: html  # volumes에서 선언 한 볼륨 이름 
+        mountPath: /usr/local/apache2/htdocs # apache가 html을 읽어오는 경로
         readOnly: true
       ports:
       - containerPort: 80
