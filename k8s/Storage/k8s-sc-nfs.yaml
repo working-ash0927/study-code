@@ -1,0 +1,42 @@
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-client
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: k8s-sigs.io/nfs-subdir-external-provisioner # or choose another name, must match deployment's env PROVISIONER_NAME'
+parameters:
+#   archiveOnDelete: "false"
+  path: /home/nfs
+mountOptions:
+  - nfsvers=4.2
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-nfs
+spec:
+  # storageClassName: ""
+  accessModes: # AccessModes
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi # 1GB 요청
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pvc-httpd
+spec:
+  containers:
+    - name: pvc-httpd
+      image: httpd
+      volumeMounts:
+        - name: nfs
+          mountPath: /usr/local/apache2/htdocs
+  volumes:
+    - name: nfs
+      persistentVolumeClaim:
+        claimName: pvc-nfs
+
