@@ -7,8 +7,7 @@ metadata:
     storageclass.kubernetes.io/is-default-class: "true"
 provisioner: k8s-sigs.io/nfs-subdir-external-provisioner # or choose another name, must match deployment's env PROVISIONER_NAME'
 parameters:
-#   archiveOnDelete: "false"
-  path: /home/nfs
+  archiveOnDelete: "false" # 애플리케이션 제거 후 데이터 유지할라면 true로 변경
 mountOptions:
   - nfsvers=4.2
 ---
@@ -17,7 +16,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: pvc-nfs
 spec:
-  # storageClassName: ""
+  # storageClassName: "" # 선언해주지 말자
   accessModes: # AccessModes
     - ReadWriteMany
   resources:
