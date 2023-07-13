@@ -1,5 +1,6 @@
 # 베이스 이미지 설정
-FROM golang
+#FROM golang:alpine
+FROM golang:1.20.3 AS builder
 
 # 호스트의 웹 사이트 디렉토리를 컨테이너 내부로 복사
 COPY ./http-go.go /root/main.go
@@ -7,8 +8,16 @@ WORKDIR /root
 
 RUN go mod init test
 RUN go mod tidy
-RUN go build main.go
+
+# scratch는 c 바이너리가 없기 때문
+# -a 모든 의존 패키지들이 c 바이너리 안쓰게
+# ldflags 더 경량화 하는 linker 옵션 
+RUN CGO_ENABLED=0 go build  -a -ldflags '-w -s' -o main main.go
 
 EXPOSE 80
 
-CMD ["./main"]
+# 바이너리 빌드를 위한 패키지. 도커 이미지 용량을 최소화 할 수 있음
+FROM scratch
+COPY --from=builder /root/main .
+
+ENTRYPOINT ["./main"]
