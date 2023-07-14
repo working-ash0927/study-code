@@ -5,7 +5,6 @@ FROM golang:1.20.3 AS builder
 # 호스트의 웹 사이트 디렉토리를 컨테이너 내부로 복사
 COPY ./http-go.go /root/main.go
 WORKDIR /root
-
 RUN go mod init test
 RUN go mod tidy
 
@@ -14,6 +13,9 @@ RUN go mod tidy
 # ldflags 더 경량화 하는 linker 옵션 
 RUN CGO_ENABLED=0 go build  -a -ldflags '-w -s' -o main main.go
 
+RUN mkdir -p /var/www/html
+WORKDIR /var/www/html/
+RUN echo ' WORKING!!' > /var/www/html/index.html
 EXPOSE 80
 
 # 바이너리 빌드를 위한 패키지. 도커 이미지 용량을 최소화 할 수 있음

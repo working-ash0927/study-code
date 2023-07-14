@@ -11,7 +11,7 @@ spec:
     - name: http-go
       nodePort: 30080   # 외부에서 진입시
       port: 80          # 클러스터에서 서비스 IP를 호출 시
-      targetPort: 5000    # 서비스가 Pod를 호출 시
+      targetPort: 80    # 서비스가 Pod를 호출 시
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -38,13 +38,13 @@ spec:
     spec:
       containers:
         - name: go
-          image: ash0927/go-http:3  # 서버의 호스트네임을 반환하기 위함
+          image: ash0927/http-go  # 서버의 호스트네임을 반환하기 위함
           ports:
-            - containerPort: 5000
+            - containerPort: 80
               protocol: TCP
           livenessProbe:
             initialDelaySeconds: 10
             periodSeconds: 3
             httpGet:
               path: /
-              port: 5000
+              port: 80

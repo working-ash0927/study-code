@@ -1,0 +1,59 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: http-go
+spec: 
+  selector:  # pod의 label과 일치해야 관리된다.
+    app: state-go
+  # StatefulSet은 통신 type 명시 없이 헤드리스 서비스로써, coreDNS를 활용해 통신을 진행한다.
+  clusterIP: None
+  ports:
+    - name: http-go
+      port: 81          # 클러스터에서 서비스 IP를 호출 시
+      targetPort: 80    # 서비스가 Pod를 호출 시
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: front-ss
+  labels:
+    app: state-go
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: state-go   # spec.template와 동일해야함
+  serviceName: http-go
+  minReadySeconds: 10  # Default: 0
+  template:
+    metadata:      
+      labels:
+        app: state-go  # spec.selector 와 동일해야함
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: go
+          image: ash0927/http-go  # 서버의 호스트네임을 반환하기 위함
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: html
+              mountPath: /var/www/html
+          livenessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 3
+            httpGet:
+              path: /
+              port: 80
+  volumeClaimTemplates:
+    - metadata:
+        name: html
+      spec:
+        accessModes:
+          - ReadWriteMany
+        storageClassName: nfs-client
+        resources:
+          requests:
+            storage: 1Gi
