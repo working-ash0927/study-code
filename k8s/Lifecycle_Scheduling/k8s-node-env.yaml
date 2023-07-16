@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cm-test
+spec:
+  containers:
+  - name: cm-test
+    image: httpd
+    env:
+    - name: CONFIGMAP_TEST
+      valueFrom:
+       configMapKeyRef:
+        name: my-cm
+        key: hello
+    - name: CONFIGMAP_TEST2
+      valueFrom:
+       configMapKeyRef:
+        name: env-config
+        key: log_level

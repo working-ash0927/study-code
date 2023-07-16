@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ubuntu2204
+  labels:
+    app: ubuntu
+spec:
+  containers:
+    - name: ubuntu2204
+      image: ubuntu
+      command:
+        - "printenv"
+      args:
+        - HOSTNAM
+        - KUBERNETRES_PORT
+  restartPolicy: OnFailure
