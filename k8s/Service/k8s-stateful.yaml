@@ -34,7 +34,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
         - name: go
-          image: ash0927/http-go  # 서버의 호스트네임을 반환하기 위함
+          image: ash0927/http-go:2 # 서버의 호스트네임을 반환하기 위함
           ports:
             - containerPort: 80
               protocol: TCP

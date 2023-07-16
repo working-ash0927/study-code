@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+      env:
+        - name: ENVTEST
+          value: "IMHERE!"
+      ports:
+        - containerPort: 80
+          protocol: TCP

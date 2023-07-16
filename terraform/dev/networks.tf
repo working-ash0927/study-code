@@ -1,3 +1,9 @@
+locals {
+  azs = {
+    aza = data.aws_availability_zones.azs.names[0]
+    azc = data.aws_availability_zones.azs.names[2]
+  }
+}
 ## vpc networks
 resource "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
@@ -7,15 +13,15 @@ resource "aws_internet_gateway" "igw" {
 }
 resource "aws_subnet" "pub-a" {
   vpc_id                                      = aws_vpc.main.id
-  cidr_block                                  = var.vpc_pub-a_cidr
+  cidr_block                                  = cidrsubnet(var.vpc_cidr, 8, 1)
   enable_resource_name_dns_a_record_on_launch = true
-  availability_zone                           = "${var.region}a"
+  availability_zone                           = local.azs.aza
 }
 resource "aws_subnet" "priv-a" {
   vpc_id                                      = aws_vpc.main.id
-  cidr_block                                  = var.vpc_priv-a_cidr
+  cidr_block                                  = cidrsubnet(var.vpc_cidr, 8, 128)
   enable_resource_name_dns_a_record_on_launch = true
-  availability_zone                           = "${var.region}a"
+  availability_zone                           = local.azs.aza
 }
 
 # 로컬에 대한 라우팅은 기본적으로 생성되있음. 추가할거만 넣으면 됨
