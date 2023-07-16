@@ -6,12 +6,7 @@ metadata:
   labels:
     app: ubuntu
 spec:
+  restartPolicy: OnFailure
   containers:
     - name: ubuntu2204
-      image: ubuntu
-      command:
-        - "printenv"
-      args:
-        - HOSTNAM
-        - KUBERNETRES_PORT
-  restartPolicy: OnFailure
+      image: ubuntu:22.04

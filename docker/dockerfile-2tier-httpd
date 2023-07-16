@@ -1,0 +1,16 @@
+# 베이스 이미지 설정
+FROM ubuntu:22.04
+WORKDIR /
+ENV tomcat_svc="tomcat-svc.default.svc.cluster.local"
+RUN apt update -y
+RUN apt install -y apache2 libapache2-mod-jk
+RUN echo "worker.list=lb" >> /etc/apache2/workers.properties
+RUN echo "worker.lb.type=ajp13" >> /etc/apache2/workers.properties
+RUN echo "worker.lb.port=8009" >> /etc/apache2/workers.properties
+RUN echo "worker.lb.host=${tomcat_svc}" >> /etc/apache2/workers.properties
+RUN sed -i '\_ServerAdmin_i\    JKMount /*.jsp lb' /etc/apache2/sites-enabled/000-default.conf
+RUN sed -i '\_JkWorkersFile_c\JkWorkersFile /etc/apache2/workers.properties' /etc/apache2/mods-available/jk.conf
+RUN rm -rf /etc/libapache2-mod-jk/workers.properties
+
+EXPOSE 80
+CMD ["apache2ctl", "-D", "FOREGROUND"]

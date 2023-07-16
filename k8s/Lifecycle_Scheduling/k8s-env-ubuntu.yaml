@@ -1,0 +1,18 @@
+# 에러남
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: env-ubuntu
+  labels:
+    app: ubuntu
+spec:
+  restartPolicy: OnFailure
+  containers:
+    - name: env-ubuntu
+      image: ubuntu:22.04
+      command:
+        - "printenv"
+      args:
+        - HOSTNAM
+        - KUBERNETRES_PORT
