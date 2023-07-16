@@ -9,7 +9,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: localhost  # alb의 경로기반 라우팅 하는 기준같은거
+    - host: testhostname.show  # alb의 경로기반 라우팅 하는 기준같은거
       http:
         paths:
           - path: /

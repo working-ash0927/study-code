@@ -10,12 +10,8 @@ spec:
   ports:
     - name: http
       nodePort: 30081   # 외부에서 진입시
-      port: 81          # 클러스터에서 서비스 IP를 호출 시
+      port: 80          # 클러스터에서 서비스 IP를 호출 시
       targetPort: 80    # 서비스가 Pod를 호출 시
-    - name: https
-      nodePort: 30082   # 외부에서 진입시
-      port: 444          # 클러스터에서 서비스 IP를 호출 시
-      targetPort: 443    # 서비스가 Pod를 호출 시
 ---
 apiVersion: apps/v1
 kind: Deployment
