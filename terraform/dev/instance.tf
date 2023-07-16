@@ -1,7 +1,7 @@
 locals {
   ami = {
-      arm_ubuntu2204 = data.aws_ami.ubuntu2204_arm.image_id
-      arm_amazon2023 = data.aws_ami.amzn2023_arm.image_id
+    arm_ubuntu2204 = data.aws_ami.ubuntu2204_arm.image_id
+    arm_amazon2023 = data.aws_ami.amzn2023_arm.image_id
   }
   default_tags = {
     manage = "Terraform"
@@ -33,7 +33,6 @@ resource "aws_security_group_rule" "egress_all" {
 }
 
 resource "aws_instance" "control_plane" {
-  count = 1
   ami           = local.ami.arm_ubuntu2204
   instance_type = "t4g.small"
   key_name      = "11"
@@ -58,14 +57,12 @@ resource "aws_eip" "control_plane" {
 }
 
 resource "aws_eip_association" "control_plane" {
-  instance_id   = aws_instance.control_plane[0].id
+  instance_id   = aws_instance.control_plane.id
   allocation_id = aws_eip.control_plane.id
 }
 
 resource "aws_instance" "nfs" {
-  count = 1
-  ami           = local.ami.arm_ubuntu2204
-  
+  ami                         = local.ami.arm_ubuntu2204
   instance_type               = "t4g.nano"
   key_name                    = "11"
   subnet_id                   = aws_subnet.pub-a.id
@@ -87,25 +84,23 @@ resource "aws_instance" "nfs" {
 resource "aws_eip" "nfs" {
   domain     = "vpc"
   depends_on = [aws_internet_gateway.igw]
-  tags        = local.default_tags
+  tags       = local.default_tags
 }
 
 resource "aws_eip_association" "nfs" {
-  instance_id   = aws_instance.nfs[0].id
+  instance_id   = aws_instance.nfs.id
   allocation_id = aws_eip.nfs.id
 }
 
-# resource "aws_ec2_instance_state" "control_plane" {
-#   # for_each = aws_instance.control_plane[*]
-#   instance_id = aws_instance.control_plane.id
-#   state = var.ec2-status
-# }
+resource "aws_ec2_instance_state" "control_plane" {
+  instance_id = aws_instance.control_plane.id
+  state = var.ec2-status
+}
 
-# resource "aws_ec2_instance_state" "nfs" {
-#   # for_each = aws_instance.nfs[*]
-#   instance_id = aws_instance.nfs.id
-#   state = var.ec2-status
-# }
+resource "aws_ec2_instance_state" "nfs" {
+  instance_id = aws_instance.nfs.id
+  state = var.ec2-status
+}
 # ## ====================================== ##
 
 output "ins_pub_ip" {

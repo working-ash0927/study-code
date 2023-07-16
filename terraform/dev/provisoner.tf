@@ -2,10 +2,18 @@ terraform {
   required_version = "~> 1.5.2" # 1.5.x 버전의 Terraform만 활용 가능
   required_providers {
     aws = {
-      source  = "hashicorp/aws"
+    #   source  = "hashicorp/aws"
+    source = "registry.terraform.io/hashicorp/aws"
       version = ">=5.0, <=5.6.2" # 5.0 ~ 5.6.2 버전의 프로바이더만 사용 가능
     }
   }
+#   cloud {
+#     organization = "workingash"
+
+#     workspaces {
+#       name = "personal-workspace"
+#     }
+#   }
   backend "local" { # terraform으로 관리되는 리소스의 정보를 저장하는 위치 지정.
     path = "state/terraform.tfstate"
   }

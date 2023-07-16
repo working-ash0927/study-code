@@ -9,5 +9,6 @@ variable "vpc_cidr" {
 
 variable "ec2-status" {
   type    = string
-  default = "running"
+#   default = "running" 
+  default = "stopped" 
 }
