@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: tomcat-ajp-svc
 spec:
-  type: NodePort
+  # type: NodePort
   # sessionAffinity: ClientIP
   ports:
     - name: http
@@ -24,9 +24,9 @@ metadata:
 spec:
   containers:
     - name: tomcat
-      image: ash0927/tomcat-ajp
+      image: ash0927/tomcat-ajp:1
       ports:
         - containerPort: 8080
           protocol: TCP
         - containerPort: 8009
-          protocol: ajp
+          protocol: TCP

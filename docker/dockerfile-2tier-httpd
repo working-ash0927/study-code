@@ -1,7 +1,8 @@
+# ash0927/httpd-connector
 # 베이스 이미지 설정
 FROM ubuntu:22.04
 WORKDIR /
-ENV tomcat_svc="tomcat-svc.default.svc.cluster.local"
+ENV tomcat_svc="tomcat-ajp-svc.default.svc.cluster.local"
 RUN apt update -y
 RUN apt install -y apache2 libapache2-mod-jk
 RUN echo "worker.list=lb" >> /etc/apache2/workers.properties

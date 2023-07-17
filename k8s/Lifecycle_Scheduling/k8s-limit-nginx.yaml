@@ -1,0 +1,18 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    resources: # 컨테이너 단위로 리소스 제약
+      requests: # 값을 너무 크게 주면 파드가 올라오지 않을수도 있다.
+        memory: "16Mi" # 0.5 == cpu 절반. 0.1 == 100m 과 동일
+        cpu: "25m"
+      limits:
+        memory: "32Mi"
+        cpu: "50m"
+    ports:
+      - containerPort: 80
