@@ -1,28 +1,4 @@
-locals {
-  arm_ubuntu2204 = data.aws_ami.ubuntu2204_arm.image_id
-  arm_amazon2023 = data.aws_ami.amzn2023_arm.image_id
-  x86_ubuntu2204 = data.aws_ami.ubuntu2204_amd.image_id
-  x86_amazon2023 = data.aws_ami.amzn2023_amd.image_id
-  default_tags = {
-    manage = "Terraform"
-  }
-  ingress_rules = {
-    vpc = {
-      description = "vpc_allow_all"
-      from_port   = null
-      to_port     = null
-      protocol    = "-1"
-      cidr_ipv4   = var.vpc_cidr
-    }
-    home_ssh = {
-      description = "ssh allow my home"
-      from_port   = null
-      to_port     = null
-      protocol    = "-1"
-      cidr_ipv4   = "14.36.0.0/16"
-    }
-  }
-}
+
 
 # security group
 resource "aws_security_group" "k8s_master" {
@@ -87,24 +63,6 @@ resource "aws_spot_instance_request" "k8s_worker1" {
     Name = "k8s_worker1"
   }
 }
-# resource "aws_spot_instance_request" "k8s_worker2" {
-#   ami                         = local.arm_ubuntu2204  
-#   instance_type               = "t4g.small"
-#   key_name                    = "11"
-#   subnet_id                   = aws_subnet.pub-a.id
-#   associate_public_ip_address = true
-#   private_ip                  = cidrhost(aws_subnet.pub-a.cidr_block, 17)
-
-#   ## 별도로 운영하는 vpc 내 인스턴스를 생성 시 아래 옵션으로 진행. security_groups로 할 경우 replace로 동작한다
-#   vpc_security_group_ids = [aws_security_group.k8s_master.id]
-#   user_data = file("bash_script/k8s-worker.sh")
-#   lifecycle {
-#     ignore_changes = [associate_public_ip_address, user_data, ami] # spot은 userdata 변경되면 적용할라고 삭제후 생성되기때문
-#   }
-#   tags = {
-#     Name = "k8s_worker2"
-#   }
-# }
 
 resource "aws_instance" "nfs" {
   ami                         = local.arm_ubuntu2204
