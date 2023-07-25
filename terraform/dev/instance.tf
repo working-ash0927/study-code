@@ -14,12 +14,33 @@ locals {
       protocol    = "-1"
       cidr_ipv4   = var.vpc_cidr
     }
-    home_ssh = {
+    home = {
       description = "ssh allow my home"
       from_port   = null
       to_port     = null
       protocol    = "-1"
       cidr_ipv4   = "14.36.0.0/16"
+    }
+    company = {
+      description = "ssh allow my company"
+      from_port   = null
+      to_port     = null
+      protocol    = "-1"
+      cidr_ipv4   = "220.72.0.0/16"
+    }
+    cafe_ssh = {
+      description = "ssh allow my blue-jo cafe"
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_ipv4   = "121.141.0.0/16"
+    }
+    https = {
+      description = "https"
+      from_port   = null
+      to_port     = null
+      protocol    = "-1"
+      cidr_ipv4   = "0.0.0.0/0"
     }
   }
 }

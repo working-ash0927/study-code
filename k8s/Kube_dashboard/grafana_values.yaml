@@ -1,0 +1,22 @@
+replicas: 1
+
+service:
+  type: NodePort
+
+persistence:
+  type: pvc
+  enabled: true
+  # storageClassName: default
+  accessModes:
+    - ReadWriteOnce
+  size: 2Gi
+  # annotations: {}
+  finalizers:
+    - kubernetes.io/pvc-protection
+
+initChownData:  # 에러나서..
+  enabled: false
+
+# Administrator credentials when not using an existing secret (see below)
+adminUser: admin
+adminPassword: qweqweqwe
