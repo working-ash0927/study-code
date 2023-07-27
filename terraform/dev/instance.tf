@@ -137,6 +137,39 @@ output "k8s_worker1" {
   ]
 }
 
+# resource "aws_spot_instance_request" "docker" {
+#   ami                         = local.arm_amazon2023
+#   instance_type               = "t4g.large"
+#   key_name                    = "11"
+#   subnet_id                   = aws_subnet.pub-a.id
+#   associate_public_ip_address = true
+#   private_ip                  = cidrhost(aws_subnet.pub-a.cidr_block, 19)
+
+#   ## 별도로 운영하는 vpc 내 인스턴스를 생성 시 아래 옵션으로 진행. security_groups로 할 경우 replace로 동작한다
+#   vpc_security_group_ids = [aws_security_group.k8s_master.id]
+#   user_data              = file("bash_script/docker.sh")
+#   lifecycle {
+#     ignore_changes = [associate_public_ip_address, user_data, ami] # spot은 userdata 변경되면 적용할라고 삭제후 생성되기때문
+#   }
+#   root_block_device {
+#     delete_on_termination = true
+#     encrypted             = false
+#     tags                  = {}
+#     volume_size           = 8
+#     volume_type           = "gp3"
+#   }
+#   tags = {
+#     Name = "docker"
+#   }
+# }
+
+# output "docker" {
+#   value = [
+#     "pub : ${aws_spot_instance_request.docker.public_ip}",
+#     "priv : ${aws_spot_instance_request.docker.private_ip}"
+#   ]
+# }
+
 # resource "aws_spot_instance_request" "k8s_worker2" {
 #   ami                         = local.arm_ubuntu2204  
 #   instance_type               = "t4g.small"
