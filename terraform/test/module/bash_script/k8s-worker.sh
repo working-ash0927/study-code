@@ -103,6 +103,7 @@ echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://a
 sudo apt-get update -y
 sudo apt-get install -y kubelet kubeadm kubectl
 sudo apt-mark hold kubelet kubeadm kubectl
+mkdir /root/.kube
 
 # "centos, ubuntu, debian, amzn, ..."
 mylinuxos=`awk -F= '/^ID=/{print $2}' /etc/os-release | sed 's/\"//'g`

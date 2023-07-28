@@ -12,9 +12,13 @@ variable "region" {
 #   }))
 # }
 
-variable "craete_vpc" {
+variable "create_vpc" {
   type = bool
   default = false
+}
+variable "vpc_name" {
+  type    = string
+  default = null
 }
 variable "vpc_cidr" {
   type    = string
@@ -39,11 +43,18 @@ variable "priv_subnets" {
   default = []
 }
 variable "az" {
-  type = string
-  default = null
+  # type = string
+  # default = null
+  type = list
+  default = []
 }
 
 variable "nat" {
   type = bool
   default = false
+}
+variable "tags" {
+  description = "A mapping of tags to assign to security group"
+  type        = map(string)
+  default     = {}
 }

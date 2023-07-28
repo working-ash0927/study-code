@@ -37,3 +37,9 @@ data "aws_ami" "ubuntu2204_amd" {
     values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server*"]
   }
 }
+
+data "aws_availability_zones" "azs" {
+  state = "available"
+  # 미포함 az 정의
+  exclude_names = ["ap-northeast-2b", "ap-northeast-2d"]
+}

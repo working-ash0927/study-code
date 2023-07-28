@@ -111,8 +111,8 @@ sudo cp -i /etc/kubernetes/admin.conf /root/.kube/config
 sudo chown $(id -u):$(id -g) /root/.kube/config
 
 # Networks를 위한 Calico OSS 설치 https://docs.tigera.io/calico/latest/getting-started/kubernetes/quickstart
-curl https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml -O
-kubectl apply -f calico.yaml
+curl https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml -O /root/calico.yaml
+kubectl apply -f /root/calico.yaml
 
 # taint 설정 제거 (pod 스케줄링이 안되는 문제 해결)
 kubectl taint nodes --all node-role.kubernetes.io/control-plane-
@@ -146,7 +146,7 @@ source  ~/.bashrc
 # 키 정보와 커맨드 워커에 전달..
 token=$(kubeadm token list | awk 'NR==2 {print $1}')
 key=$(openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //')
-echo "kubeadm join $(hostname -I | awk '{print $1}') --token $token --discovery-token-ca-cert-hash sha256:$key" > join_command
+echo "kubeadm join $(hostname -I | awk '{print $1}'):6443 --token $token --discovery-token-ca-cert-hash sha256:$key" > join_command
 
 # 워커가 조인 후 롤 부여
-# kc label node/$(hostname -s) node-role.kubernetes.io/worker=worker
+# kc label node/WOERKER node-role.kubernetes.io/worker=worker

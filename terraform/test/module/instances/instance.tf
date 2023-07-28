@@ -1,111 +1,103 @@
-
-
-# security group
-resource "aws_security_group" "k8s_master" {
-  name        = "k8s_master"
-  description = "k8s_master"
-  vpc_id      = aws_vpc.main.id
-  tags        = local.default_tags
-}
-
-# 다른 SG 참조시에 대한 요소를 효과적으로 처리하기 위해. 
-resource "aws_vpc_security_group_ingress_rule" "k8s_master" {
-  for_each          = local.ingress_rules
-  security_group_id = aws_security_group.k8s_master.id
-  from_port         = each.value.from_port
-  to_port           = each.value.to_port
-  ip_protocol       = each.value.protocol
-  cidr_ipv4         = each.value.cidr_ipv4
-  description       = each.value.description
-}
-resource "aws_vpc_security_group_egress_rule" "k8s_master" {
-  security_group_id = aws_security_group.k8s_master.id
-  cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1"
-  #   from_port         = -1
-  #   to_port           = -1
-}
-
-resource "aws_instance" "k8s_master" {
-  ami                         = local.arm_ubuntu2204
-  instance_type               = "t4g.small"
-  key_name                    = "11"
-  subnet_id                   = aws_subnet.pub-a.id
-  associate_public_ip_address = true
-  private_ip                  = cidrhost(aws_subnet.pub-a.cidr_block, 15)
+resource "aws_instance" "this" {
+  count                       = var.create_instance && !var.create_spot_instance ? 1 : 0
+  ami                         = var.ami
+  instance_type               = var.instance_type               # "t4g.small"
+  key_name                    = var.key_name                    # "11"
+  subnet_id                   = var.subnet_id                   # aws_subnet.pub-a.id
+  associate_public_ip_address = var.associate_public_ip_address # true
+  private_ip                  = var.private_ip                  # cidrhost(aws_subnet.pub-a.cidr_block, 15)
+  get_password_data           = var.get_password_data           # for windows
 
   ## 별도로 운영하는 vpc 내 인스턴스를 생성 시 아래 옵션으로 진행. security_groups로 할 경우 replace로 동작한다
-  vpc_security_group_ids = [aws_security_group.k8s_master.id]
-  user_data = file("bash_script/k8s-master.sh")
+  vpc_security_group_ids = var.vpc_security_group_ids
+  user_data              = var.user_data
   lifecycle {
-    ignore_changes = [associate_public_ip_address, ami, user_data]
+    ignore_changes = [
+      user_data, ami,
+      # public_ip, private_ip, subnet_id
+    ]
   }
-  tags = {
-    Name = "k8s_master"
+  root_block_device {
+    delete_on_termination = var.root_volume_delete_on_termination #true
+    encrypted             = var.root_volume_encrypted             #false
+    volume_size           = var.root_volume_size                  #30
+    volume_type           = var.root_volume_type                  #"gp3"
+    tags                  = var.root_volume_tags
   }
+
+  dynamic "ebs_block_device" {
+    for_each = var.ebs_block_device
+
+    content {
+      delete_on_termination = try(ebs_block_device.value.delete_on_termination, null)
+      device_name           = ebs_block_device.value.device_name
+      encrypted             = try(ebs_block_device.value.encrypted, null)
+      iops                  = try(ebs_block_device.value.iops, null)
+      kms_key_id            = lookup(ebs_block_device.value, "kms_key_id", null)
+      snapshot_id           = lookup(ebs_block_device.value, "snapshot_id", null)
+      volume_size           = try(ebs_block_device.value.volume_size, null)
+      volume_type           = try(ebs_block_device.value.volume_type, null)
+      throughput            = try(ebs_block_device.value.throughput, null)
+      tags                  = try(ebs_block_device.value.tags, null)
+    }
+  }
+  tags = merge(
+    {
+      "Name" = format("%s", var.ins_name)
+    },
+    var.tags,
+  )
 }
 
-resource "aws_spot_instance_request" "k8s_worker1" {
-  ami                         = local.arm_ubuntu2204  
-  instance_type               = "t4g.small"
-  key_name                    = "11"
-  subnet_id                   = aws_subnet.pub-a.id
-  associate_public_ip_address = true
-  private_ip                  = cidrhost(aws_subnet.pub-a.cidr_block, 16)
+resource "aws_spot_instance_request" "this" {
+  count                       = var.create_spot_instance ? 1 : 0
+  ami                         = var.ami
+  instance_type               = var.instance_type
+  key_name                    = var.key_name
+  subnet_id                   = var.subnet_id
+  associate_public_ip_address = var.associate_public_ip_address
+  private_ip                  = var.private_ip
+  get_password_data           = var.get_password_data # for windows
 
   ## 별도로 운영하는 vpc 내 인스턴스를 생성 시 아래 옵션으로 진행. security_groups로 할 경우 replace로 동작한다
-  vpc_security_group_ids = [aws_security_group.k8s_master.id]
-  user_data = file("bash_script/k8s-worker.sh")
+  vpc_security_group_ids = var.vpc_security_group_ids
+  user_data              = var.user_data
   lifecycle {
-    ignore_changes = [associate_public_ip_address, user_data, ami] # spot은 userdata 변경되면 적용할라고 삭제후 생성되기때문
+    ignore_changes = [
+      associate_public_ip_address, user_data, ami,
+      # tags, public_ip, private_ip, subnet_id
+    ]
   }
-  tags = {
-    Name = "k8s_worker1"
+  root_block_device {
+    delete_on_termination = var.root_volume_delete_on_termination #true
+    encrypted             = var.root_volume_encrypted             #false
+    volume_size           = var.root_volume_size                  #30
+    volume_type           = var.root_volume_type                  #"gp3"
+    tags                  = var.root_volume_tags
   }
-}
 
-resource "aws_instance" "nfs" {
-  ami                         = local.arm_ubuntu2204
-  instance_type               = "t4g.nano"
-  key_name                    = "11"
-  subnet_id                   = aws_subnet.pub-a.id
-  associate_public_ip_address = true
-  private_ip                  = cidrhost(aws_subnet.pub-a.cidr_block, 200)
+  dynamic "ebs_block_device" {
+    for_each = var.ebs_block_device
 
-  ## 별도로 운영하는 vpc 내 인스턴스를 생성 시 아래 옵션으로 진행. security_groups로 할 경우 replace로 동작한다
-  vpc_security_group_ids = [aws_security_group.k8s_master.id]
-  user_data              = ""
-  lifecycle {
-    ignore_changes = [associate_public_ip_address, user_data, ami]
+    content {
+      delete_on_termination = try(ebs_block_device.value.delete_on_termination, null)
+      device_name           = ebs_block_device.value.device_name
+      encrypted             = try(ebs_block_device.value.encrypted, null)
+      iops                  = try(ebs_block_device.value.iops, null)
+      kms_key_id            = lookup(ebs_block_device.value, "kms_key_id", null)
+      snapshot_id           = lookup(ebs_block_device.value, "snapshot_id", null)
+      volume_size           = try(ebs_block_device.value.volume_size, null)
+      volume_type           = try(ebs_block_device.value.volume_type, null)
+      throughput            = try(ebs_block_device.value.throughput, null)
+      tags                  = try(ebs_block_device.value.tags, null)
+    }
   }
-  tags = {
-    Name = "nfs"
-  }
+  tags = merge(
+    {
+      "Name" = format("%s", var.ins_name)
+    },
+    var.tags,
+  )
 }
 
 # ## ====================================== ##
-
-output "k8s" {
-  value = [
-    "pub : ${aws_instance.k8s_master.public_ip}", 
-    "priv : ${aws_instance.k8s_master.private_ip}"
-  ]
-}
-output "k8s_worker1" {
-  value = [
-    "pub : ${aws_spot_instance_request.k8s_worker1.public_ip}", 
-    "priv : ${aws_spot_instance_request.k8s_worker1.private_ip}"
-  ]
-}
-# output "k8s_worker2" {
-#   value = [
-#     "pub : ${aws_spot_instance_request.k8s_worker2.public_ip}", 
-#     "priv : ${aws_spot_instance_request.k8s_worker2.private_ip}"
-#   ]
-# }
-output "nfs" {
-  value = [
-    "pub : ${aws_instance.nfs.public_ip}",
-    "priv : ${aws_instance.nfs.private_ip}"
-  ]
-}
