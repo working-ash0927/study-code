@@ -18,18 +18,3 @@ terraform {
     dynamodb_table = "terraform-lock"
   }
 }
-
-## Terraform을 통해 관리 할 매체를 정의하는 Provider Block
-# 호스트 서버에 AWS Credentials를 미리 정의했기 때문에 이 곳에 자격증명 정보를 추가할 필요는 없다.
-provider "aws" {
-  region = var.region
-}
-
-
-# data "terraform_remote_state" "state" {
-#   backend = "local"
-
-#   config = {
-#     path = "${path.module}/../../terraform.tfstate"
-#   }
-# }
