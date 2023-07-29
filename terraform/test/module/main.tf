@@ -77,6 +77,11 @@ module "sg_all_allow" {
   egress_rule = local.egress_rules
   tags        = local.default_tags
 }
+locals {
+  k8s_info = {
+
+  }
+}
 
 module "k8s_control_plane" {
   source                      = "./Instances"
@@ -124,76 +129,3 @@ module "nfs" {
   private_ip                  = cidrhost(module.vpc.pub_subnet_cidr[0], 200)
   tags                        = local.default_tags
 }
-
-# moved {
-#   from = aws_vpc.main
-#   to   = module.vpc.aws_vpc.this[0]
-# }
-# moved {
-#   from = aws_internet_gateway.igw
-#   to   = module.vpc.aws_internet_gateway.this[0]
-# }
-# moved {
-#   from = aws_route_table.priv_route
-#   to   = module.vpc.aws_route_table.priv_route[0]
-# }
-# moved {
-#   from = aws_route_table.pub_route
-#   to   = module.vpc.aws_route_table.pub_route[0]
-# }
-# moved {
-#   from = aws_route_table_association.priv_rt_associate
-#   to   = module.vpc.aws_route_table_association.priv_rt_associate[0]
-# }
-# moved {
-#   from = aws_route_table_association.pub_rt_associate
-#   to   = module.vpc.aws_route_table_association.pub_rt_associate[0]
-# }
-# moved {
-#   from = aws_subnet.priv-a
-#   to   = module.vpc.aws_subnet.priv[0]
-# }
-# moved {
-#   from = aws_subnet.pub-a
-#   to   = module.vpc.aws_subnet.pub[0]
-# }
-# moved {
-# 	from = aws_vpc_security_group_ingress_rule.k8s_master["cafe_ssh"]
-# 	to = module.sg_all_allow.aws_vpc_security_group_ingress_rule.this[0]
-# }
-# moved {
-# 	from = aws_vpc_security_group_ingress_rule.k8s_master["company"]
-# 	to = module.sg_all_allow.aws_vpc_security_group_ingress_rule.this[1]
-# }
-# moved {
-# 	from = aws_vpc_security_group_ingress_rule.k8s_master["home"]
-# 	to = module.sg_all_allow.aws_vpc_security_group_ingress_rule.this[2]
-# }
-# moved {
-# 	from = aws_vpc_security_group_ingress_rule.k8s_master["https"]
-# 	to = module.sg_all_allow.aws_vpc_security_group_ingress_rule.this[3]
-# }
-# moved {
-# 	from = aws_vpc_security_group_ingress_rule.k8s_master["vpc"]
-# 	to = module.sg_all_allow.aws_vpc_security_group_ingress_rule.this[4]
-# }
-# moved {
-# 	from = aws_vpc_security_group_egress_rule.k8s_master
-# 	to = module.sg_all_allow.aws_vpc_security_group_egress_rule.this[0]
-# }
-# moved {
-#   from = aws_security_group.k8s_master
-#   to   = module.sg_all_allow.aws_security_group.this[0]
-# }
-# moved {
-#   from = aws_spot_instance_request.k8s_master
-#   to   = module.k8s_control_plane.aws_spot_instance_request.this[0]
-# }
-# moved {
-#   from = aws_spot_instance_request.k8s_worker1
-#   to   = module.k8s_worker1.aws_spot_instance_request.this[0]
-# }
-# moved {
-#   from = aws_instance.nfs
-#   to   = module.nfs.aws_instance.this[0]
-# }

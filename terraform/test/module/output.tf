@@ -7,6 +7,3 @@ output "k8s_worker1" {
 output "k8s_nfs" {
   value = try(module.nfs, null)
 }
-# output vpc {
-#     value = module.vpc
-# }

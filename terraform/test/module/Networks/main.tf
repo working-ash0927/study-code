@@ -1,5 +1,4 @@
 ## vpc networks
-
 resource "aws_vpc" "this" {
   count = var.create_vpc ? 1 : 0
   cidr_block = var.vpc_cidr
@@ -18,16 +17,13 @@ resource "aws_subnet" "pub" {
   count = var.create_pub_subnet && length(var.pub_subnets) > 0 ? length(var.pub_subnets): 0
   vpc_id                                      = aws_vpc.this[0].id
   cidr_block                                  = var.pub_subnets[count.index]
-  # cidr_block                                  = cidrsubnet(var.vpc_cidr, 8, count.index + 1)
-  # cidr_block                                  = element(concat(var.public_subnets, [""]), count.index)
   enable_resource_name_dns_a_record_on_launch = true
   availability_zone                           = var.az[count.index]
 }
 resource "aws_subnet" "priv" {
-  count = var.create_pub_subnet && length(var.priv_subnets) > 0 ? length(var.priv_subnets): 0
+  count = var.create_priv_subnet && length(var.priv_subnets) > 0 ? length(var.priv_subnets): 0
   vpc_id                                      = aws_vpc.this[0].id
   cidr_block                                  = var.priv_subnets[count.index]
-  # cidr_block                                  = cidrsubnet(var.vpc_cidr, 8, count.index + 128)
   enable_resource_name_dns_a_record_on_launch = true
   availability_zone                           = var.az[count.index]
 }
