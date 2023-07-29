@@ -85,7 +85,7 @@ locals {
 
 module "k8s_control_plane" {
   source                      = "./Instances"
-  create_spot_instance        = true
+  create_spot_instance        = false
   ins_name                    = "k8s_control_plane"
   ami                         = local.arm_ubuntu2204
   instance_type               = "t4g.small"
@@ -101,7 +101,7 @@ module "k8s_control_plane" {
 
 module "k8s_worker1" {
   source                      = "./Instances"
-  create_spot_instance        = true
+  create_spot_instance        = false
   ins_name                    = "k8s_worker1"
   ami                         = local.arm_ubuntu2204
   instance_type               = "t4g.medium"
@@ -117,8 +117,8 @@ module "k8s_worker1" {
 
 module "nfs" {
   source          = "./Instances"
-  create_instance = true
-    # create_spot_instance = true
+  # create_instance = true
+  create_spot_instance        = false
   ins_name                    = "nfs"
   ami                         = local.arm_ubuntu2204
   instance_type               = "t4g.nano"
