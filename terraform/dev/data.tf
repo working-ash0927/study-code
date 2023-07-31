@@ -43,3 +43,10 @@ data "aws_availability_zones" "azs" {
   # 미포함 az 정의
   exclude_names = ["ap-northeast-2b", "ap-northeast-2d"]
 }
+
+data "aws_instances" "test" {
+  instance_tags = {
+    IaC = "Terraform"
+  }
+  instance_state_names = ["running", "stopped"]
+}

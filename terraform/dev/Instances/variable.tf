@@ -11,6 +11,12 @@ variable "ami" {
   type    = string
   default = ""
 }
+variable "source_dest_check" {
+  description = "This value must be using when NAT at application. (ex. Openswan)"
+  type = bool
+  default = true
+}
+
 variable "instance_type" {
   type    = string
   default = ""
@@ -29,7 +35,11 @@ variable "associate_public_ip_address" {
 }
 variable "private_ip" {
   type    = string
-  default = ""
+  default = null
+}
+variable "private_ips" {
+  type    = list(string)
+  default = null
 }
 
 variable "get_password_data" { # for windows
@@ -70,6 +80,12 @@ variable "root_volume_tags" {
   default = {}
 }
 
+# variable "nic" {
+#   description = "Additional NIC to attach to the instance"
+#   type        = list(any)
+#   default     = []
+# }
+
 variable "ebs_block_device" {
   description = "Additional EBS block devices to attach to the instance"
   type        = list(any)
@@ -84,4 +100,8 @@ variable "tags" {
   description = "A mapping of tags to assign to security group"
   type        = map(string)
   default     = {}
+}
+variable "create_eip" {
+  type = bool
+  default = false
 }
