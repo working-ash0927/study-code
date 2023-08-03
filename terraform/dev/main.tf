@@ -10,6 +10,8 @@ locals {
   arm_amazon2023 = data.aws_ami.amzn2023_arm.image_id
   x86_ubuntu2204 = data.aws_ami.ubuntu2204_amd.image_id
   x86_amazon2023 = data.aws_ami.amzn2023_amd.image_id
+  x86_win2022    = data.aws_ami.win2022.image_id
+  x86_win2022_sql = data.aws_ami.win2022_sql.image_id
 
   default_tags = {
     IaC         = "Terraform"
@@ -48,34 +50,64 @@ module "sg_workspace" {
       to_port     = null
       ip_protocol = "-1"
       cidr_ipv4   = local.vpc_cidr
-      }, {
+    }, {
       description = "ssh allow my home"
       from_port   = null
       to_port     = null
       ip_protocol = "-1"
       cidr_ipv4   = "14.36.0.0/16"
-      }, {
+    }, {
       description = "ssh allow my company"
       from_port   = null
       to_port     = null
       ip_protocol = "-1"
       cidr_ipv4   = "220.72.0.0/16"
-      }, {
+    }, {
       description = "ssh allow my blue-jo cafe"
       from_port   = 22
       to_port     = 22
       ip_protocol = "tcp"
       cidr_ipv4   = "121.141.0.0/16"
-      }, {
+    }, {
       description = "https"
       from_port   = null
       to_port     = null
       ip_protocol = "-1"
       cidr_ipv4   = "0.0.0.0/0"
+    }, {
+      description = "rdp"
+      from_port   = 3389
+      to_port     = 3389
+      ip_protocol = "tcp"
+      cidr_ipv4   = "220.72.0.0/16"
     }
   ]
   egress_rule = local.egress_rules
   tags        = local.default_tags
+}
+locals {
+  ebs_block_device = {
+    d = {
+        availability_zone = "ap-northeast-2a"
+        encrypted = false
+        size = 10
+        type = "gp3"
+        kms_key_id = null
+        throughput = null
+        tags = null
+        device_name = "/dev/sda2"
+    }
+    # e = {
+    #     availability_zone = "ap-northeast-2a"
+    #     encrypted = false
+    #     size = 6
+    #     type = "gp3"
+    #     kms_key_id = null
+    #     throughput = null
+    #     tags = null
+    #     device_name = "/dev/sda3"
+    # }
+  }
 }
 locals {
   k8s_info = {
@@ -85,34 +117,44 @@ locals {
 
 module "test" {
   source                      = "./Instances"
-  # create_instance = true
+  create_instance = false
   # create_eip = true
-  # create_spot_instance        = false
-  # associate_public_ip_address = true # nic 별도로 생성하면 활용 불가. 인스턴스 자체 생성시에만 활용되기 떄문
-  ins_name                    = "test"
-  ami                         = local.arm_ubuntu2204
-  instance_type               = "t4g.nano"
-  key_name                    = "11"
-  subnet_id                   = module.vpc.pub_subnet_id[0]
-  private_ips                  = [cidrhost(module.vpc.pub_subnet_cidr[0], 10)]
-  vpc_security_group_ids      = [module.sg_workspace.id]
-  tags                        = local.default_tags
-}
-module "test2" {
-  source                      = "./Instances"
-  # create_instance = true
-  # create_eip = true
-  create_spot_instance        = true
+  # create_spot_instance        = true
   associate_public_ip_address = true # nic 별도로 생성하면 활용 불가. 인스턴스 자체 생성시에만 활용되기 떄문
-  ins_name                    = "test2"
-  ami                         = local.arm_ubuntu2204
-  instance_type               = "t4g.nano"
-  key_name                    = "11"
+  ins_name                    = "test"
+  get_password_data = true
+  ami                         = local.x86_win2022
+  instance_type               = "t3a.large"
+  key_name                    = "11-win"
   subnet_id                   = module.vpc.pub_subnet_id[0]
-  private_ip                  = cidrhost(module.vpc.pub_subnet_cidr[0], 11)
+  private_ip                  = cidrhost(module.vpc.pub_subnet_cidr[0], 10)
   vpc_security_group_ids      = [module.sg_workspace.id]
+  root_volume_size = 30
   tags                        = local.default_tags
 }
+# 수정필요. 여러개 선언하면 왠지 모르게 인스턴스에 여러개 생성해서 attach가 안됨
+module "extend_ebs" {
+  source = "./EBS"
+  depends_on = [ module.test ]
+  create_ebs = false
+  ebs_block_device = local.ebs_block_device
+  ins_name = "test"
+}
+# module "test2" {
+#   source                      = "./Instances"
+#   # create_instance = true
+#   # create_eip = true
+#   create_spot_instance        = false
+#   associate_public_ip_address = false # nic 별도로 생성하면 활용 불가. 인스턴스 자체 생성시에만 활용되기 떄문
+#   ins_name                    = "test2"
+#   ami                         = local.arm_ubuntu2204
+#   instance_type               = "t4g.nano"
+#   key_name                    = "11"
+#   subnet_id                   = module.vpc.pub_subnet_id[0]
+#   private_ip                  = cidrhost(module.vpc.pub_subnet_cidr[0], 11)
+#   vpc_security_group_ids      = [module.sg_workspace.id]
+#   tags                        = local.default_tags
+# }
 
 # module "k8s_control_plane" {
 #   source                      = "./Instances"

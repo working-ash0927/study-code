@@ -38,6 +38,26 @@ data "aws_ami" "ubuntu2204_amd" {
   }
 }
 
+data "aws_ami" "win2022" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["Windows_Server-2022-English-Full-Base-*"]
+  }
+}
+data "aws_ami" "win2022_sql" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["Windows_Server-2022-English-Full-SQL_2022_Standard-*"]
+  }
+}
+
+
 data "aws_availability_zones" "azs" {
   state = "available"
   # 미포함 az 정의
