@@ -100,7 +100,7 @@ locals {
 }
 
 module "simple_ad" {
-  source = "./AD"
+  source = "./Active_Directory"
   create_ad = false
   ad_name = "test.sanghong.com"
   ad_passwd = "Qlalfqjsgh123#"
