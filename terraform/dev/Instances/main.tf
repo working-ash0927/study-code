@@ -247,4 +247,19 @@ resource "aws_spot_instance_request" "this" {
 }
 
 
-# ## ====================================== ##
+# NIC ## ====================================== ##
+resource "aws_network_interface" "this" {
+  count = (var.create_instance || var.create_spot_instance) && length(var.extend_nic_ips) > 0 ? 1 : 0
+  subnet_id       = var.subnet_id
+  private_ips     = var.extend_nic_ips
+  security_groups = var.vpc_security_group_ids
+
+  attachment {
+    instance     = try(
+      aws_instance.this[0].id, 
+      aws_spot_instance_request.this[0].id, 
+      null
+    )
+    device_index = count.index + 1
+  }
+}

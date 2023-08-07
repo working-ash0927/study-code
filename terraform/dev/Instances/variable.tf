@@ -80,11 +80,11 @@ variable "root_volume_tags" {
   default = {}
 }
 
-# variable "nic" {
-#   description = "Additional NIC to attach to the instance"
-#   type        = list(any)
-#   default     = []
-# }
+variable "extend_nic_ips" {
+  description = "Additional NIC to attach to the instance"
+  type        = list(any)
+  default     = []
+}
 
 variable "ebs_block_device" {
   description = "Additional EBS block devices to attach to the instance"

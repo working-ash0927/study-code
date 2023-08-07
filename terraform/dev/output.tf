@@ -1,7 +1,12 @@
-output "test" {
+output "jump" {
   value = try(module.test, null)
 }
-
+output "win" {
+  value = try(module.failover-windows, null)
+}
+output "vpc" {
+  value = try(module.vpc, null)
+}
 # output "k8s_control_plane" {
 #   value = try(module.k8s_control_plane, null)
 # }

@@ -16,6 +16,10 @@ variable "create_vpc" {
   type = bool
   default = false
 }
+variable "enable_nat" {
+  type = bool
+  default = false
+}
 variable "vpc_name" {
   type    = string
   default = null

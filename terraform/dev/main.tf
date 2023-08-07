@@ -33,6 +33,7 @@ module "vpc" {
   create_vpc   = true
   vpc_cidr     = local.vpc_cidr
   vpc_name     = "terraform"
+  # enable_nat   = true
   pub_subnets  = [for i in range(2) : cidrsubnet(local.vpc_cidr, 8, i + 1)]
   priv_subnets = [for i in range(2) : cidrsubnet(local.vpc_cidr, 8, i + 128)]
   az           = local.azs
@@ -51,13 +52,13 @@ module "sg_workspace" {
       ip_protocol = "-1"
       cidr_ipv4   = local.vpc_cidr
     }, {
-      description = "ssh allow my home"
+      description = "allow my home"
       from_port   = null
       to_port     = null
       ip_protocol = "-1"
       cidr_ipv4   = "14.36.0.0/16"
     }, {
-      description = "ssh allow my company"
+      description = "allow my company"
       from_port   = null
       to_port     = null
       ip_protocol = "-1"
@@ -68,18 +69,6 @@ module "sg_workspace" {
       to_port     = 22
       ip_protocol = "tcp"
       cidr_ipv4   = "121.141.0.0/16"
-    }, {
-      description = "https"
-      from_port   = null
-      to_port     = null
-      ip_protocol = "-1"
-      cidr_ipv4   = "0.0.0.0/0"
-    }, {
-      description = "rdp"
-      from_port   = 3389
-      to_port     = 3389
-      ip_protocol = "tcp"
-      cidr_ipv4   = "220.72.0.0/16"
     }
   ]
   egress_rule = local.egress_rules
@@ -109,22 +98,26 @@ locals {
     # }
   }
 }
-locals {
-  k8s_info = {
 
-  }
+module "simple_ad" {
+  source = "./AD"
+  create_ad = false
+  ad_name = "test.sanghong.com"
+  ad_passwd = "Qlalfqjsgh123#"
+  vpc_id = module.vpc.id
+  subnet_ids = module.vpc.pub_subnet_id
 }
 
 module "test" {
   source                      = "./Instances"
-  create_instance = false
+  # create_instance = true
   # create_eip = true
   # create_spot_instance        = true
   associate_public_ip_address = true # nic 별도로 생성하면 활용 불가. 인스턴스 자체 생성시에만 활용되기 떄문
-  ins_name                    = "test"
+  ins_name                    = "jump"
   get_password_data = true
   ami                         = local.x86_win2022
-  instance_type               = "t3a.large"
+  instance_type               = "t3a.medium"
   key_name                    = "11-win"
   subnet_id                   = module.vpc.pub_subnet_id[0]
   private_ip                  = cidrhost(module.vpc.pub_subnet_cidr[0], 10)
@@ -132,6 +125,47 @@ module "test" {
   root_volume_size = 30
   tags                        = local.default_tags
 }
+
+module "failover-windows" {
+  count = 2
+  source                      = "./Instances"
+  # create_instance = true
+  # create_eip = true
+  # create_spot_instance        = true
+  associate_public_ip_address = true # nic 별도로 생성하면 활용 불가. 인스턴스 자체 생성시에만 활용되기 떄문
+  ins_name                    = "server${count.index}"
+  get_password_data = true
+  ami                         = local.x86_win2022
+  instance_type               = "t3a.medium"
+  key_name                    = "11-win"
+  subnet_id                   = element(module.vpc.pub_subnet_id[*], count.index)
+  private_ip                  = cidrhost(element(module.vpc.pub_subnet_cidr[*],count.index), count.index + 11)
+  extend_nic_ips              = [
+    cidrhost(element(module.vpc.pub_subnet_cidr[*],count.index), 101),
+    cidrhost(element(module.vpc.pub_subnet_cidr[*],count.index), 102)
+  ]
+  vpc_security_group_ids      = [module.sg_workspace.id]
+  root_volume_size = 30
+  tags                        = local.default_tags
+}
+
+# module "test" {
+#   source                      = "./Instances"
+#   create_instance = false
+#   # create_eip = true
+#   # create_spot_instance        = true
+#   associate_public_ip_address = true # nic 별도로 생성하면 활용 불가. 인스턴스 자체 생성시에만 활용되기 떄문
+#   ins_name                    = "test"
+#   get_password_data = true
+#   ami                         = local.x86_win2022
+#   instance_type               = "t3a.large"
+#   key_name                    = "11-win"
+#   subnet_id                   = module.vpc.pub_subnet_id[0]
+#   private_ip                  = cidrhost(module.vpc.pub_subnet_cidr[0], 10)
+#   vpc_security_group_ids      = [module.sg_workspace.id]
+#   root_volume_size = 30
+#   tags                        = local.default_tags
+# }
 # 수정필요. 여러개 선언하면 왠지 모르게 인스턴스에 여러개 생성해서 attach가 안됨
 module "extend_ebs" {
   source = "./EBS"
