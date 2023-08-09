@@ -6,8 +6,8 @@ resource "aws_s3_bucket" "tfstate" {
   # }
 }
 resource "aws_s3_bucket_acl" "tfstate" {
-  bucket = aws_s3_bucket.tfstate.id
-  acl    = "private"
+  bucket     = aws_s3_bucket.tfstate.id
+  acl        = "private"
   depends_on = [aws_s3_bucket_ownership_controls.s3_bucket_acl_ownership]
   # lifecycle {
   #   prevent_destroy = true
@@ -34,9 +34,9 @@ resource "aws_s3_bucket_versioning" "tfstate_versioning" {
 
 # DynamoDB for terraform state lock
 resource "aws_dynamodb_table" "terraform_state_lock" {
-  name           = "terraform-lock"
-  hash_key       = "LockID"
-  billing_mode   = "PAY_PER_REQUEST"
+  name         = "terraform-lock"
+  hash_key     = "LockID"
+  billing_mode = "PAY_PER_REQUEST"
 
   attribute {
     name = "LockID"

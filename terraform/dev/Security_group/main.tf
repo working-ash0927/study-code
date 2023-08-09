@@ -1,9 +1,9 @@
 # security group
 resource "aws_security_group" "this" {
-  count = var.create_sg ? 1: 0
-  name        = var.sg_name
-  description = var.sg_description
-  vpc_id      = var.vpc_id
+  count                  = var.create_sg ? 1 : 0
+  name                   = var.sg_name
+  description            = var.sg_description
+  vpc_id                 = var.vpc_id
   revoke_rules_on_delete = var.revoke_rules_on_delete
   tags = merge(
     {
@@ -18,60 +18,60 @@ resource "aws_security_group" "this" {
 }
 # 다른 SG 참조시에 대한 요소를 효과적으로 처리하기 위해. 
 resource "aws_vpc_security_group_ingress_rule" "this" {
-  count = var.create_sg ? length(var.ingress_rule): 0
+  count             = var.create_sg ? length(var.ingress_rule) : 0
   security_group_id = aws_security_group.this[0].id
 
-  from_port         = lookup(
+  from_port = lookup(
     var.ingress_rule[count.index],
     "from_port",
     null
   )
-  to_port           = lookup(
+  to_port = lookup(
     var.ingress_rule[count.index],
     "to_port",
     null
   )
-  ip_protocol       = lookup(
+  ip_protocol = lookup(
     var.ingress_rule[count.index],
     "ip_protocol",
     ""
   )
-  cidr_ipv4         = lookup(
+  cidr_ipv4 = lookup(
     var.ingress_rule[count.index],
     "cidr_ipv4",
     "0.0.0.0/0"
   )
-  description       = lookup(
+  description = lookup(
     var.ingress_rule[count.index],
     "description",
     "Not Define"
   )
 }
 resource "aws_vpc_security_group_egress_rule" "this" {
-  count = var.create_sg ? length(var.egress_rule): 0
+  count             = var.create_sg ? length(var.egress_rule) : 0
   security_group_id = aws_security_group.this[0].id
 
-  from_port         = lookup(
+  from_port = lookup(
     var.ingress_rule[count.index],
     "from_port",
     null
   )
-  to_port           = lookup(
+  to_port = lookup(
     var.ingress_rule[count.index],
     "to_port",
     null
   )
-  ip_protocol       = lookup(
+  ip_protocol = lookup(
     var.ingress_rule[count.index],
     "ip_protocol",
     "-1"
   )
-  cidr_ipv4         = lookup(
+  cidr_ipv4 = lookup(
     var.ingress_rule[count.index],
     "cidr_ipv4",
     "0.0.0.0/0"
   )
-  description       = lookup(
+  description = lookup(
     var.ingress_rule[count.index],
     "description",
     "Not Define"

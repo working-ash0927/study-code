@@ -13,11 +13,11 @@ variable "region" {
 # }
 
 variable "create_vpc" {
-  type = bool
+  type    = bool
   default = false
 }
 variable "enable_nat" {
-  type = bool
+  type    = bool
   default = false
 }
 variable "vpc_name" {
@@ -29,32 +29,32 @@ variable "vpc_cidr" {
   default = null
 }
 variable "create_pub_subnet" {
-  type = bool
+  type    = bool
   default = true
 }
 variable "create_priv_subnet" {
-  type = bool
+  type    = bool
   default = true
 }
 
 variable "pub_subnets" {
-  type = list
+  type    = list(any)
   default = []
 }
 
 variable "priv_subnets" {
-  type = list
+  type    = list(any)
   default = []
 }
 variable "az" {
   # type = string
   # default = null
-  type = list
+  type    = list(any)
   default = []
 }
 
 variable "nat" {
-  type = bool
+  type    = bool
   default = false
 }
 variable "tags" {

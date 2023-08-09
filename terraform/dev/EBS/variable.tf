@@ -1,18 +1,18 @@
 variable "create_ebs" {
-    type = bool
-    default = false
+  type    = bool
+  default = false
 }
 variable "ins_name" {
-    type = string
-    default = ""
+  type    = string
+  default = ""
 }
 variable "ebs_block_device" {
-  type = map(any)
+  type    = map(any)
   default = {}
 }
 variable "instance_id" {
-    type = string
-    default = ""
+  type    = string
+  default = ""
 }
 
 # variable "ebs_encrypted" {

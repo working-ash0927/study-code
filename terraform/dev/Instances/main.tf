@@ -29,9 +29,9 @@
 
 resource "aws_eip" "this" {
   # count = (local.nic_create_flag == 1) && var.create_eip ? 1 : 0
-  count = (var.create_instance || var.create_spot_instance) && var.create_eip ? 1 : 0
-  domain = "vpc"
-  depends_on = [ aws_instance.this, aws_spot_instance_request.this ]
+  count      = (var.create_instance || var.create_spot_instance) && var.create_eip ? 1 : 0
+  domain     = "vpc"
+  depends_on = [aws_instance.this, aws_spot_instance_request.this]
 }
 resource "aws_eip_association" "eip_assoc" {
   # count = (local.nic_create_flag == 1) && var.create_eip ? 1 : 0
@@ -158,7 +158,7 @@ resource "aws_instance" "this" {
   user_data              = var.user_data
   lifecycle {
     ignore_changes = [
-      user_data, ami, 
+      user_data, ami,
       # associate_public_ip_address
       # public_ip, private_ip, subnet_id
     ]
@@ -249,15 +249,15 @@ resource "aws_spot_instance_request" "this" {
 
 # NIC ## ====================================== ##
 resource "aws_network_interface" "this" {
-  count = (var.create_instance || var.create_spot_instance) && length(var.extend_nic_ips) > 0 ? 1 : 0
+  count           = (var.create_instance || var.create_spot_instance) && length(var.extend_nic_ips) > 0 ? 1 : 0
   subnet_id       = var.subnet_id
   private_ips     = var.extend_nic_ips
   security_groups = var.vpc_security_group_ids
 
   attachment {
-    instance     = try(
-      aws_instance.this[0].id, 
-      aws_spot_instance_request.this[0].id, 
+    instance = try(
+      aws_instance.this[0].id,
+      aws_spot_instance_request.this[0].id,
       null
     )
     device_index = count.index + 1

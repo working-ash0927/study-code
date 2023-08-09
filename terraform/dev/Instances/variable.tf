@@ -13,8 +13,8 @@ variable "ami" {
 }
 variable "source_dest_check" {
   description = "This value must be using when NAT at application. (ex. Openswan)"
-  type = bool
-  default = true
+  type        = bool
+  default     = true
 }
 
 variable "instance_type" {
@@ -102,6 +102,6 @@ variable "tags" {
   default     = {}
 }
 variable "create_eip" {
-  type = bool
+  type    = bool
   default = false
 }

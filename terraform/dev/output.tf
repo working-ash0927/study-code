@@ -7,6 +7,9 @@ output "win" {
 output "vpc" {
   value = try(module.vpc, null)
 }
+output "ad" {
+  value = try(module.simple_ad, null)
+}
 # output "k8s_control_plane" {
 #   value = try(module.k8s_control_plane, null)
 # }

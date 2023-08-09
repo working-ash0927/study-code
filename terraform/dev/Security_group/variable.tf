@@ -1,21 +1,21 @@
 variable "create_sg" {
-    type = bool
+  type    = bool
   default = true
 }
 variable "sg_name" {
-  type = string
+  type    = string
   default = null
 }
 variable "sg_description" {
-  type = string
+  type    = string
   default = "Security Group managed by Terraform"
 }
 variable "vpc_id" {
-    type = string
-    default = null
+  type    = string
+  default = null
 }
 variable "revoke_rules_on_delete" {
-  type = bool
+  type    = bool
   default = false
 }
 variable "ingress_rule" {
@@ -30,12 +30,12 @@ variable "egress_rule" {
 }
 
 variable "create_timeout" {
-    type = string
-    default = "10m"
+  type    = string
+  default = "10m"
 }
 variable "delete_timeout" {
-    type = string
-    default = "15m"
+  type    = string
+  default = "15m"
 }
 
 variable "tags" {
