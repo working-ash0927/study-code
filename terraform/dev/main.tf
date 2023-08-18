@@ -108,8 +108,24 @@ module "simple_ad" {
   subnet_ids = module.vpc.pub_subnet_id
   tags       = local.default_tags
 }
-
 module "test" {
+  source = "./Instances"
+  # create_instance = true
+  # create_eip = true
+  # create_spot_instance        = true
+  associate_public_ip_address = true # nic 별도로 생성하면 활용 불가. 인스턴스 자체 생성시에만 활용되기 떄문
+  ins_name                    = "t"
+  ami                         = local.arm_ubuntu2204
+  instance_type               = "t4g.nano"
+  key_name                    = "11"
+  subnet_id                   = module.vpc.pub_subnet_id[0]
+  # private_ip                  = cidrhost(module.vpc.pub_subnet_cidr[0], 10)
+  vpc_security_group_ids      = [module.sg_workspace.id]
+  root_volume_size            = 30
+  tags                        = local.default_tags
+}
+
+module "jump" {
   source = "./Instances"
   # create_instance = true
   # create_eip = true
@@ -141,7 +157,7 @@ module "failover-windows" {
   key_name                    = "11-win"
   subnet_id                   = element(module.vpc.pub_subnet_id[*], count.index)
   private_ip                  = cidrhost(element(module.vpc.pub_subnet_cidr[*], count.index), count.index + 11)
-  extend_nic_ips = [
+  extend_nic_ips = [ # failover vip
     cidrhost(element(module.vpc.pub_subnet_cidr[*], count.index), 101),
     cidrhost(element(module.vpc.pub_subnet_cidr[*], count.index), 102)
   ]

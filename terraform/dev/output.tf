@@ -1,5 +1,8 @@
-output "jump" {
+output "test" {
   value = try(module.test, null)
+}
+output "jump" {
+  value = try(module.jump, null)
 }
 output "win" {
   value = try(module.failover-windows, null)

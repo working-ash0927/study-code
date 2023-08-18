@@ -263,3 +263,19 @@ resource "aws_network_interface" "this" {
     device_index = count.index + 1
   }
 }
+
+
+# Tools ## ====================================== ##
+# AWS Reserved IP range
+# 10.0.0.0: 네트워크 주소.
+# 10.0.0.1: AWS에서 VPC 라우터용으로 예약한 주소.
+# 10.0.0.2: AWS에서 예약한 주소. DNS 서버의 IP 주소는 기본 VPC 네트워크 범위에 2를 더한 주소입니다. CIDR 블록이 여러 개인 VPC의 경우, DNS 서버의 IP 주소가 기본 CIDR에 위치합니다. 또한 각 서브넷 범위의 기본에 2를 더한 주소를 VPC의 모든 CIDR 블록에 대해 예약합니다. 자세한 내용은 Amazon DNS 서버 섹션을 참조하세요.
+# 10.0.0.3: AWS에서 앞으로 사용하려고 예약한 주소.
+# 10.0.0.255: 네트워크 브로드캐스트 주소. VPC에서는 브로드캐스트를 지원하지 않으므로, 이 주소를 예약합니다.
+# resource "random_integer" "random_cidr" {
+#     min = 5
+#     max = 254
+#     keepers = {
+#         instance_name = var.ins_name
+#     }
+# }
