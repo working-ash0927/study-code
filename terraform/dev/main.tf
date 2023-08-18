@@ -110,13 +110,13 @@ module "simple_ad" {
 }
 module "test" {
   source = "./Instances"
-  # create_instance = true
+  create_instance = true
   # create_eip = true
-  # create_spot_instance        = true 
+  create_spot_instance        = true 
   associate_public_ip_address = true # nic 별도로 생성하면 활용 불가. 인스턴스 자체 생성시에만 활용되기 떄문
   ins_name                    = "t"
   ami                         = local.arm_ubuntu2204
-  instance_type               = "t4g.nano"
+  instance_type               = "t4g.micro"
   key_name                    = "11"
   subnet_id                   = module.vpc.pub_subnet_id[0]
   # private_ip                  = cidrhost(module.vpc.pub_subnet_cidr[0], 10)
