@@ -4,8 +4,11 @@
 
 ### 목적
 1. Kubernetes 를 VM에 띄워 공부하였으나, 집의 Desktop에 한정되어 공부하는게 불편하여 클라우드에 운영하고 싶었음.
-2. 인프라는 빠르게 삭제할 수 있고, 빠르게 추가할 수 있었으면 하여 스터디 수강과 함께 terraform으로 관리하기로 함.
+2. 인프라는 빠르게 삭제, 생성할 수 있었으면 하여 스터디 수강과 함께 terraform으로 관리하기로 함.
 
+### 2023-08-08 특징
+- AWS Directory Service 활용을 위한 모듈을 추가하였습니다.
+- EC2 모듈에서 추가 NIC를 할당할 수 있도록 문법을 개선하였습니다.
 
 ### 2023-07-27 특징
 - Resource 선언 방식의 코드를 Module화 하여 코드의 재사용성을 높혔습니다.
@@ -27,5 +30,6 @@
 |             | **Data**    |  aws_ami |
 | **Storage** | **Resource** | S3 | Managed Terraform tfstate |
 |              |             | DynamoDB | terraform lock |
-
-
+| **Identity** | **Resource** | aws_directory_service_directory | Managed AD |
+|             |             | aws_vpc_dhcp_options | vpc settings
+|             |             | aws_vpc_dhcp_options_association | for ad  attach

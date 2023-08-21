@@ -101,7 +101,7 @@ locals {
 
 module "simple_ad" {
   source     = "./Active_Directory"
-  create_ad  = false
+  create_ad  = true
   ad_name    = "test.sanghong.com"
   ad_passwd  = "Qlalfqjsgh123#"
   vpc_id     = module.vpc.id
@@ -127,7 +127,7 @@ module "test" {
 
 module "jump" {
   source = "./Instances"
-  # create_instance = true
+  create_instance = true
   # create_eip = true
   # create_spot_instance        = true
   associate_public_ip_address = true # nic 별도로 생성하면 활용 불가. 인스턴스 자체 생성시에만 활용되기 떄문
@@ -146,7 +146,7 @@ module "jump" {
 module "failover-windows" {
   count  = 2
   source = "./Instances"
-  # create_instance = true
+  create_instance = true
   # create_eip = true
   # create_spot_instance        = true
   associate_public_ip_address = true # nic 별도로 생성하면 활용 불가. 인스턴스 자체 생성시에만 활용되기 떄문
