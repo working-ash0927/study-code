@@ -18,7 +18,7 @@ T101 2기 스터디를 통해 알게 된 테라폼 문법을 활용하여 terraf
 - Resource 선언 방식의 코드를 Module화 하여 코드의 재사용성을 높혔습니다.
 
 ---
-### 관리 리소스 (VPC)
+## 관리 리소스 (VPC)
 
 #### Backend
 | **Group** | **Block Type** | **Name** | **Info** |

@@ -52,27 +52,27 @@ resource "aws_vpc_security_group_egress_rule" "this" {
   security_group_id = aws_security_group.this[0].id
 
   from_port = lookup(
-    var.ingress_rule[count.index],
+    var.egress_rule[count.index],
     "from_port",
     null
   )
   to_port = lookup(
-    var.ingress_rule[count.index],
+    var.egress_rule[count.index],
     "to_port",
     null
   )
   ip_protocol = lookup(
-    var.ingress_rule[count.index],
+    var.egress_rule[count.index],
     "ip_protocol",
     "-1"
   )
   cidr_ipv4 = lookup(
-    var.ingress_rule[count.index],
+    var.egress_rule[count.index],
     "cidr_ipv4",
     "0.0.0.0/0"
   )
   description = lookup(
-    var.ingress_rule[count.index],
+    var.egress_rule[count.index],
     "description",
     "Not Define"
   )

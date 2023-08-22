@@ -53,10 +53,6 @@ variable "az" {
   default = []
 }
 
-variable "nat" {
-  type    = bool
-  default = false
-}
 variable "tags" {
   description = "A mapping of tags to assign to security group"
   type        = map(string)

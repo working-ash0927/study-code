@@ -1,3 +1,7 @@
+# resource local_file ansible_hosts {
+
+# }
+
 # variable "docker-init" {
 #   default = "20230721"
 # }

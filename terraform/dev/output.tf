@@ -1,3 +1,6 @@
+output "ansible" {
+  value = try(module.ansible, null)
+}
 output "test" {
   value = try(module.test, null)
 }
