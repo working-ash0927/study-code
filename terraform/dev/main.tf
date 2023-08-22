@@ -102,11 +102,22 @@ locals {
 module "simple_ad" {
   source     = "./Active_Directory"
   create_ad  = true
-  ad_name    = "test.sanghong.com"
+  ad_name    = "sanghong.com"
   ad_passwd  = "Qlalfqjsgh123#"
   vpc_id     = module.vpc.id
-  subnet_ids = module.vpc.pub_subnet_id
+  subnet_ids = module.vpc.pub_subnet_ids
   tags       = local.default_tags
+}
+
+module "win_fsx" {
+  source = "./FSx"
+  create_fsx_windows = true
+  active_directory_id = module.simple_ad.id
+  # 현재 2개 고정이라 이래 하는데, 변경 필요한지는 체크
+  subnet_ids = module.vpc.priv_subnet_ids
+  deployment_type = "MULTI_AZ_1"
+  preferred_subnet_id = module.vpc.priv_subnet_ids[0]
+  security_group_ids = [ module.sg_workspace.id ]
 }
 module "test" {
   source = "./Instances"
@@ -118,16 +129,17 @@ module "test" {
   ami                         = local.arm_ubuntu2204
   instance_type               = "t4g.micro"
   key_name                    = "11"
-  subnet_id                   = module.vpc.pub_subnet_id[0]
+  subnet_id                   = module.vpc.pub_subnet_ids[0]
   # private_ip                  = cidrhost(module.vpc.pub_subnet_cidr[0], 10)
-  vpc_security_group_ids      = [module.sg_workspace.id]
-  root_volume_size            = 30
-  tags                        = local.default_tags
+  vpc_security_group_ids = [module.sg_workspace.id]
+  root_volume_size       = 30
+  tags                   = local.default_tags
 }
 
 module "jump" {
-  source = "./Instances"
-  # create_instance = true
+  source     = "./Instances"
+  depends_on = [module.simple_ad]
+  create_instance = true
   # create_eip = true
   # create_spot_instance        = true
   associate_public_ip_address = true # nic 별도로 생성하면 활용 불가. 인스턴스 자체 생성시에만 활용되기 떄문
@@ -136,7 +148,7 @@ module "jump" {
   ami                         = local.x86_win2022
   instance_type               = "t3a.medium"
   key_name                    = "11-win"
-  subnet_id                   = module.vpc.pub_subnet_id[0]
+  subnet_id                   = module.vpc.pub_subnet_ids[0]
   private_ip                  = cidrhost(module.vpc.pub_subnet_cidr[0], 10)
   vpc_security_group_ids      = [module.sg_workspace.id]
   root_volume_size            = 30
@@ -144,18 +156,19 @@ module "jump" {
 }
 
 module "failover-windows" {
-  count  = 2
-  source = "./Instances"
-  # create_instance = true
+  count      = 2
+  depends_on = [module.simple_ad]
+  source     = "./Instances"
+  create_instance = true
   # create_eip = true
   # create_spot_instance        = true
   associate_public_ip_address = true # nic 별도로 생성하면 활용 불가. 인스턴스 자체 생성시에만 활용되기 떄문
   ins_name                    = "server${count.index}"
   get_password_data           = true
-  ami                         = local.x86_win2022
-  instance_type               = "t3a.medium"
+  ami                         = local.x86_win2022_sql
+  instance_type               = "t3a.large"
   key_name                    = "11-win"
-  subnet_id                   = element(module.vpc.pub_subnet_id[*], count.index)
+  subnet_id                   = element(module.vpc.pub_subnet_ids[*], count.index)
   private_ip                  = cidrhost(element(module.vpc.pub_subnet_cidr[*], count.index), count.index + 11)
   extend_nic_ips = [ # failover vip
     cidrhost(element(module.vpc.pub_subnet_cidr[*], count.index), 101),
@@ -177,7 +190,7 @@ module "failover-windows" {
 #   ami                         = local.x86_win2022
 #   instance_type               = "t3a.large"
 #   key_name                    = "11-win"
-#   subnet_id                   = module.vpc.pub_subnet_id[0]
+#   subnet_id                   = module.vpc.pub_subnet_ids[0]
 #   private_ip                  = cidrhost(module.vpc.pub_subnet_cidr[0], 10)
 #   vpc_security_group_ids      = [module.sg_workspace.id]
 #   root_volume_size = 30
@@ -201,7 +214,7 @@ module "extend_ebs" {
 #   ami                         = local.arm_ubuntu2204
 #   instance_type               = "t4g.nano"
 #   key_name                    = "11"
-#   subnet_id                   = module.vpc.pub_subnet_id[0]
+#   subnet_id                   = module.vpc.pub_subnet_ids[0]
 #   private_ip                  = cidrhost(module.vpc.pub_subnet_cidr[0], 11)
 #   vpc_security_group_ids      = [module.sg_workspace.id]
 #   tags                        = local.default_tags
@@ -214,7 +227,7 @@ module "extend_ebs" {
 #   ami                         = local.arm_ubuntu2204
 #   instance_type               = "t4g.small"
 #   key_name                    = "11"
-#   subnet_id                   = module.vpc.pub_subnet_id[0]
+#   subnet_id                   = module.vpc.pub_subnet_ids[0]
 #   associate_public_ip_address = true
 #   private_ip                  = cidrhost(module.vpc.pub_subnet_cidr[0], 15)
 #   vpc_security_group_ids      = [module.sg_workspace.id]
@@ -230,7 +243,7 @@ module "extend_ebs" {
 #   ami                         = local.arm_ubuntu2204
 #   instance_type               = "t4g.medium"
 #   key_name                    = "11"
-#   subnet_id                   = module.vpc.pub_subnet_id[0]
+#   subnet_id                   = module.vpc.pub_subnet_ids[0]
 #   associate_public_ip_address = true
 #   private_ip                  = cidrhost(module.vpc.pub_subnet_cidr[0], 16)
 #   vpc_security_group_ids      = [module.sg_workspace.id]
@@ -247,7 +260,7 @@ module "extend_ebs" {
 #   ami                         = local.arm_ubuntu2204
 #   instance_type               = "t4g.nano"
 #   key_name                    = "11"
-#   subnet_id                   = module.vpc.pub_subnet_id[0]
+#   subnet_id                   = module.vpc.pub_subnet_ids[0]
 #   associate_public_ip_address = true
 #   vpc_security_group_ids      = [module.sg_workspace.id]
 #   private_ip                  = cidrhost(module.vpc.pub_subnet_cidr[0], 200)

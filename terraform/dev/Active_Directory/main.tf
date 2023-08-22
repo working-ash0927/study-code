@@ -20,12 +20,12 @@ resource "aws_directory_service_directory" "this" {
 }
 
 resource "aws_vpc_dhcp_options" "this" {
-  count = var.create_ad ? 1 : 0
-  domain_name          = var.ad_name
-  domain_name_servers  = aws_directory_service_directory.this[0].dns_ip_addresses
+  count               = var.create_ad ? 1 : 0
+  domain_name         = var.ad_name
+  domain_name_servers = aws_directory_service_directory.this[0].dns_ip_addresses
   # ntp_servers          = ["127.0.0.1"]
   # netbios_name_servers = ["127.0.0.1"]
-  netbios_node_type    = 2 # Recommand 
+  netbios_node_type = 2 # Recommand 
 
   tags = merge(
     {
@@ -35,7 +35,7 @@ resource "aws_vpc_dhcp_options" "this" {
   )
 }
 resource "aws_vpc_dhcp_options_association" "dns_resolver" {
-  count = var.create_ad ? 1 : 0
+  count           = var.create_ad ? 1 : 0
   vpc_id          = var.vpc_id
   dhcp_options_id = aws_vpc_dhcp_options.this[0].id
 }

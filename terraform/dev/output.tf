@@ -13,6 +13,12 @@ output "vpc" {
 output "ad" {
   value = try(module.simple_ad, null)
 }
+output "sg" {
+  value = try(module.sg_workspace, null)
+}
+output fsx_windows {
+  value = try(module.win_fsx, null)
+}
 # output "k8s_control_plane" {
 #   value = try(module.k8s_control_plane, null)
 # }

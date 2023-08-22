@@ -7,7 +7,7 @@ resource "aws_vpc" "this" {
       "Name" = format("%s", var.vpc_name)
     },
     var.tags,
-  ) 
+  )
 }
 resource "aws_internet_gateway" "this" {
   count  = var.create_pub_subnet ? 1 : 0
