@@ -175,7 +175,7 @@ module "failover-windows" {
     cidrhost(element(module.vpc.pub_subnet_cidr[*], count.index), 102)
   ]
   vpc_security_group_ids = [module.sg_workspace.id]
-  root_volume_size       = 30
+  root_volume_size       = 65
   tags                   = local.default_tags
 }
 
