@@ -1,0 +1,10 @@
+/node_modules/
+/public/build/
+
+.DS_Store
+.idea
+.DS_Store
+.vscode/*
+!.vscode/launch.json
+node_modules
+.eslintcache
